@@ -87,13 +87,7 @@ export default function Header() {
             onClick={() => { navigate('/'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
             className="flex items-center gap-3 group cursor-pointer"
           >
-            <div className="relative">
-              <svg className="w-10 h-10 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2 14L5 10H19L22 14C22 14 18 17 12 17C6 17 2 14 2 14Z" fill="#06b6d4" stroke="#06b6d4" strokeWidth="1.5" strokeLinejoin="round"/>
-                <path d="M8 10L10 6H14L16 10" stroke="#0f172a" strokeWidth="1.5" strokeLinejoin="round"/>
-                <path d="M3 14H21" stroke="#0f172a" strokeWidth="1" strokeLinecap="round"/>
-              </svg>
-            </div>
+        
             <div className="flex flex-col leading-tight">
               <span className="font-extrabold text-lg md:text-xl tracking-tight text-white">MALLORCA MAR</span>
               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400">Excursiones</span>

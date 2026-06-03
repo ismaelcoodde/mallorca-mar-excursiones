@@ -64,14 +64,35 @@ const listaExperiencias = [
   },
 ];
 
-// Aplanamos todas las imágenes en una lista ordenada: exp0-img0, exp0-img1, exp1-img0, exp1-img1...
 const todasLasImagenes = listaExperiencias.flatMap((e, ei) =>
   e.imagenes.map((img, ii) => ({ img, ei, ii }))
 );
 
+// Detecta si es iOS — no soporta background-attachment: fixed
+function esIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
 export default function Experiencias() {
-  const [paso, setPaso] = useState(0); // índice en todasLasImagenes
+  const [paso, setPaso] = useState(0);
+  const [scrollY, setScrollY] = useState(0);
+  const [ios, setIos] = useState(false);
+  const seccionRef = useRef(null);
   const timerRef = useRef(null);
+
+  // Detectar iOS al montar
+  useEffect(() => {
+    setIos(esIOS());
+  }, []);
+
+  // Parallax manual para iOS: mover el fondo con JS al hacer scroll
+  useEffect(() => {
+    if (!ios) return;
+    const onScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [ios]);
 
   const iniciarTimer = () => {
     clearInterval(timerRef.current);
@@ -90,37 +111,62 @@ export default function Experiencias() {
   const imgActiva = actual.ii;
   const exp = listaExperiencias[expActiva];
 
-  // Al pulsar una experiencia saltamos a su primera imagen
   const seleccionarExp = (ei) => {
     const nuevoPaso = todasLasImagenes.findIndex((t) => t.ei === ei && t.ii === 0);
     setPaso(nuevoPaso);
     iniciarTimer();
   };
 
-  // Al pulsar un puntito saltamos a esa imagen de la experiencia activa
   const seleccionarImg = (ii) => {
     const nuevoPaso = todasLasImagenes.findIndex((t) => t.ei === expActiva && t.ii === ii);
     setPaso(nuevoPaso);
     iniciarTimer();
   };
 
+  // Calcula el desplazamiento parallax para iOS
+  const parallaxOffset = ios && seccionRef.current
+    ? (scrollY - seccionRef.current.offsetTop) * 0.35
+    : 0;
+
   return (
-    <section className="py-24 bg-slate-900" id="experiencias">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section
+      id="experiencias"
+      ref={seccionRef}
+      className="py-24 relative overflow-hidden"
+    >
+      {/* Imagen de fondo parallax */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage: "url('https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=1600&q=80')",
+          // En desktop: fixed nativo. En iOS: la movemos con JS
+          backgroundAttachment: ios ? 'scroll' : 'fixed',
+          transform: ios ? `translateY(${parallaxOffset}px)` : 'none',
+          // Agrandamos un poco para que no queden huecos al mover
+          top: ios ? '-15%' : '0',
+          height: ios ? '130%' : '100%',
+        }}
+      />
+
+      {/* Overlay oscuro */}
+      <div className="absolute inset-0 bg-slate-900/78" />
+
+      {/* Contenido */}
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <Reveal>
           <div className="text-center mb-12">
             <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 tracking-wide">
               Experiencias Inolvidables
             </h2>
-            <p className="mt-4 text-xl text-slate-400 max-w-2xl mx-auto">
+            <p className="mt-4 text-xl text-slate-300 max-w-2xl mx-auto">
               Mucho más que un simple paseo en barco. Diseñamos aventuras a medida para que disfrutes de Mallorca al máximo.
             </p>
           </div>
         </Reveal>
 
         <Reveal delay={100}>
-          {/* Imagen grande */}
+          {/* Carrusel */}
           <div className="relative w-full h-64 md:h-96 rounded-2xl overflow-hidden mb-6 shadow-2xl">
             {todasLasImagenes.map((item, i) => (
               <div
@@ -133,17 +179,14 @@ export default function Experiencias() {
               />
             ))}
 
-            {/* Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/30 to-transparent" />
 
-            {/* Texto */}
             <div className="absolute bottom-0 left-0 right-0 p-6">
               <p className="text-3xl mb-1">{exp.icono}</p>
               <h3 className="text-2xl font-bold text-white mb-1">{exp.titulo}</h3>
               <p className="text-slate-300 text-sm">{exp.descripcion}</p>
             </div>
 
-            {/* Puntitos de las imágenes de la experiencia activa */}
             <div className="absolute top-4 right-4 flex gap-1.5">
               {exp.imagenes.map((_, ii) => (
                 <button
@@ -157,7 +200,7 @@ export default function Experiencias() {
             </div>
           </div>
 
-          {/* Botones de experiencias */}
+          {/* Botones experiencias */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {listaExperiencias.map((e, i) => (
               <button
@@ -165,8 +208,8 @@ export default function Experiencias() {
                 onClick={() => seleccionarExp(i)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all duration-200 ${
                   i === expActiva
-                    ? 'bg-cyan-500/10 border-cyan-500/60 shadow-[0_0_12px_rgba(6,182,212,0.15)]'
-                    : 'bg-slate-800 border-slate-700 hover:border-slate-500'
+                    ? 'bg-cyan-500/15 border-cyan-500/60 shadow-[0_0_12px_rgba(6,182,212,0.15)]'
+                    : 'bg-slate-900/60 border-slate-700/60 hover:border-slate-500 backdrop-blur-sm'
                 }`}
               >
                 <span className="text-xl">{e.icono}</span>
