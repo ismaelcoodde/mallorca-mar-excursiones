@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import Reveal from './Reveal';
 
 const listaExperiencias = [
@@ -68,7 +69,6 @@ const todasLasImagenes = listaExperiencias.flatMap((e, ei) =>
   e.imagenes.map((img, ii) => ({ img, ei, ii }))
 );
 
-// Detecta si es iOS — no soporta background-attachment: fixed
 function esIOS() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -81,12 +81,10 @@ export default function Experiencias() {
   const seccionRef = useRef(null);
   const timerRef = useRef(null);
 
-  // Detectar iOS al montar
   useEffect(() => {
     setIos(esIOS());
   }, []);
 
-  // Parallax manual para iOS: mover el fondo con JS al hacer scroll
   useEffect(() => {
     if (!ios) return;
     const onScroll = () => setScrollY(window.scrollY);
@@ -123,7 +121,6 @@ export default function Experiencias() {
     iniciarTimer();
   };
 
-  // Calcula el desplazamiento parallax para iOS
   const parallaxOffset = ios && seccionRef.current
     ? (scrollY - seccionRef.current.offsetTop) * 0.35
     : 0;
@@ -134,24 +131,19 @@ export default function Experiencias() {
       ref={seccionRef}
       className="py-24 relative overflow-hidden"
     >
-      {/* Imagen de fondo parallax */}
+      {/* Fondo parallax */}
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage: "url('https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=1600&q=80')",
-          // En desktop: fixed nativo. En iOS: la movemos con JS
           backgroundAttachment: ios ? 'scroll' : 'fixed',
           transform: ios ? `translateY(${parallaxOffset}px)` : 'none',
-          // Agrandamos un poco para que no queden huecos al mover
           top: ios ? '-15%' : '0',
           height: ios ? '130%' : '100%',
         }}
       />
-
-      {/* Overlay oscuro */}
       <div className="absolute inset-0 bg-slate-900/78" />
 
-      {/* Contenido */}
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <Reveal>
@@ -220,6 +212,19 @@ export default function Experiencias() {
                 </span>
               </button>
             ))}
+          </div>
+
+          {/* Botón ver galería */}
+          <div className="text-center mt-10">
+            <Link
+              to="/galeria"
+              className="inline-flex items-center gap-3 bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold px-8 py-4 rounded-full transition-all duration-300 shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] hover:-translate-y-0.5"
+            >
+              Ver galería completa
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
           </div>
         </Reveal>
 

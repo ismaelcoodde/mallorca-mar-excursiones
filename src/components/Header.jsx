@@ -44,6 +44,7 @@ export default function Header() {
   // Scroll suave a una sección. Si NO estamos en la home, primero vamos a "/" y luego bajamos.
   const scrollTo = (id) => {
     setIsOpen(false);
+    if (id === 'nosotros') { navigate('/nosotros'); return; }
     if (location.pathname !== '/') {
       navigate('/');
       // esperamos un instante a que la home se monte y luego hacemos scroll
@@ -65,10 +66,10 @@ export default function Header() {
   const navLinks = [
     { label: 'Experiencias', id: 'experiencias' },
     { label: 'Embarcación', id: 'embarcacion' },
-    { label: 'Tarifas', id: 'tarifas' },
     { label: 'Preguntas', id: 'faq' },
     { label: 'Reseñas', id: 'resenas' },
     { label: 'Contacto', id: 'contacto' },
+    { label: 'Nosotros', id: 'nosotros' },
   ];
 
   return (
@@ -128,7 +129,7 @@ export default function Header() {
           <div className="md:hidden flex items-center gap-3">
             <button
               onClick={irAReservar}
-              className="bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold text-sm px-4 py-2 rounded-lg transition-all duration-300 shadow-[0_0_12px_rgba(6,182,212,0.3)]"
+              className="bg-transparent hover:bg-cyan-500/10 text-cyan-400 hover:text-cyan-300 font-bold text-sm px-4 py-2 rounded-lg border border-cyan-500 transition-all duration-300 mr-4"
             >
               Reservar
             </button>
